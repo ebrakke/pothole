@@ -216,6 +216,7 @@ module.exports = function(grunt) {
                         '**/*.html',
                         'js/**/*.*',
                         'styles/fonts/**/*.*',
+                        'data/*.json',
                         'img/**/*.{gif,jpeg,jpg,png}'
                     ]
                 }, {
@@ -278,8 +279,8 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('check-js', [
-        // 'jshint',
-        // 'jscs'
+        'jshint',
+        'jscs'
     ]);
 
     grunt.registerTask('dev', function(target) {
