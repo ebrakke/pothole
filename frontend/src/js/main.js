@@ -63,7 +63,7 @@ $(function() {
 
 	function getRoutes(start, end) {
 		return $.ajax({
-			url: 'http://192.168.0.106:3000',
+			url: 'http://server.ebrakke.com:3000',
 			data: {
 				'start': start,
 				'end': end
