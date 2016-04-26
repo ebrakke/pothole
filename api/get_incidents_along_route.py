@@ -10,12 +10,12 @@ import sys
 
 import numpy as np
 
-exec(open('../pymongo_dm.py').read())
-client = pymongo.MongoClient('mongodb://192.168.0.106:27017')
+client = pymongo.MongoClient()
 repo = client.repo
 
 start = sys.argv[1].split(',')
 end = sys.argv[2].split(',')
+unique = sys.argv[3]
 
 def distance(start, end, point):
 	""" Return the distance from a point to a line in meters """
@@ -68,7 +68,7 @@ def find_routes(start, end):
 	return routes;
 
 def incidents_on_path(path, incidentType):
-	maxDistance = .66
+	maxDistance = 1
 	lats = [path[0][0], path[1][0]]
 	lngs = [path[0][1], path[1][1]]
 	north = max(lngs)
@@ -107,9 +107,9 @@ def run(start, end, incidentType):
 
 			output[i]['incidents'] += incidents_on_path([s, e], incidentType)
 
-	with open('map/data.js', 'w') as f:
+	with open('data/{}-data.json'.format(unique), 'w') as f:
 		out = json.dumps(output)
-		f.write('var data = {}'.format(out))
+		f.write(out)
 		f.close()
 	return json.dumps(output)
 
