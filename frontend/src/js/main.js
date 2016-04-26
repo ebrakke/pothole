@@ -16,21 +16,24 @@ $(function() {
 	var markers = new L.FeatureGroup();
 
 	$('.routeSearch').on('submit', function() {
+        // Clear any current routes/incidents
 		routes.clearLayers();
 		markers.clearLayers();
 
 		$.when(getLatLng($('.startingLocation').val())).then(function(s) {
-			console.log(s);
-			var startLat = s.results[0].geometry.location.lat;
-			var startLng = s.results[0].geometry.location.lng;
+            var start = {
+                lat: s.results[0].geometry.location.lat,
+                lng: s.results[0].geometry.location.lng
+            };
 
 			$.when(getLatLng($('.endingLocation').val())).then(function(e) {
-				console.log(e);
-				var endLat = e.results[0].geometry.location.lat;
-				var endLng = e.results[0].geometry.location.lng;
+                var end = {
+                    lat: e.results[0].geometry.location.lat,
+                    lng: e.results[0].geometry.location.lng
+                };
 
-				var start = startLat + ',' + startLng;
-				var end = endLat + ',' + endLng;
+                // Pan to start/end points
+                map.fitBounds([start, end]);
 
 				$.when(getRoutes(start, end)).then(function(routes) {
 					var colors = ['red', 'blue', 'green', 'yellow', 'orange'];
@@ -61,8 +64,12 @@ $(function() {
 		});
 	}
 
-	function getRoutes(start, end) {
+	function getRoutes(s, e) {
+        var start = s.lat + ',' + s.lng;
+        var end = e.lat + ',' + e.lng;
+
 		return $.ajax({
+            // url: 'http://localhost:9000/data/ab1efcba698cefe56c000d2b384dcc6abde994088cd71687a381931626e066d2-data.json',
 			url: 'http://server.ebrakke.com:3000',
 			data: {
 				'start': start,
@@ -76,7 +83,7 @@ $(function() {
 	}
 
 	function addIncidentToMap(incident) {
-		markers.addLayer(L.marker([incident.lat, incident.lng]).addTo(map));
+		markers.addLayer(L.marker([incident.lat, incident.lng])).addTo(map);
 	}
 
 	function addRouteToMap(route, color) {
@@ -91,7 +98,7 @@ $(function() {
 
 			lines.push([[start.lat, start.lng], [end.lat, end.lng]]);
 		});
-		routes.addLayer(L.multiPolyline(lines, {'color': color}).addTo(map));
+		routes.addLayer(L.multiPolyline(lines, {'color': color})).addTo(map);
 
 		// Place a marker for each pothole
 		incidents.forEach(function(incident) {
