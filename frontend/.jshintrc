@@ -23,6 +23,7 @@
 
     "globals": {
         "$": false,
-        "L": false
+        "L": false,
+        "google": false
     }
 }

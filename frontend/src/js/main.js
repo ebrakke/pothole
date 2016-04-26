@@ -15,54 +15,60 @@ $(function() {
     var routes = new L.FeatureGroup();
     var markers = new L.FeatureGroup();
 
-    $('.routeSearch').on('submit', function() {
+    var startingLocation = document.getElementsByClassName('startingLocation')[0];
+    var endingLocation = document.getElementsByClassName('endingLocation')[0];
+    var startingAutocomplete = new google.maps.places.Autocomplete(startingLocation, {});
+    var endingAutocomplete = new google.maps.places.Autocomplete(endingLocation, {});
+
+    $('.routeSearch').on('submit', function(event) {
+        event.preventDefault();
+
+        console.log(startingAutocomplete.getPlace());
+        console.log(endingAutocomplete.getPlace());
+
         // Clear any current routes/incidents
         routes.clearLayers();
         markers.clearLayers();
 
-        $.when(getLatLng($('.startingLocation').val())).then(function(s) {
-            var start = {
-                lat: s.results[0].geometry.location.lat,
-                lng: s.results[0].geometry.location.lng
-            };
+        var s = startingAutocomplete.getPlace();
+        var start = {
+            lat: s.geometry['access_points'][0].location.lat,
+            lng: s.geometry['access_points'][0].location.lng
+        };
 
-            $.when(getLatLng($('.endingLocation').val())).then(function(e) {
-                var end = {
-                    lat: e.results[0].geometry.location.lat,
-                    lng: e.results[0].geometry.location.lng
-                };
+        var e = endingAutocomplete.getPlace();
+        var end = {
+            lat: e.geometry['access_points'][0].location.lat,
+            lng: e.geometry['access_points'][0].location.lng
+        };
 
-                // Pan to start/end points
-                map.fitBounds([start, end]);
+        // Pan to start/end points
+        map.fitBounds([start, end]);
 
-                $.when(getRoutes(start, end)).then(function(routes) {
-                    var colors = ['red', 'blue', 'green', 'yellow', 'orange'];
+        $.when(getRoutes(start, end)).then(function(routes) {
+            var colors = ['red', 'blue', 'green', 'yellow', 'orange'];
 
-                    routes.forEach(function(route, index) {
-                        addRouteToMap(route, colors[index]);
-                    });
-                });
+            routes.forEach(function(route, index) {
+                addRouteToMap(route, colors[index]);
             });
         });
-
-        return false;
     });
 
-    function getLatLng(address) {
-        return $.ajax({
-            url: 'https://maps.googleapis.com/maps/api/geocode/json',
-            data: {
-                'address': address
-            },
-            dataType: 'json',
-            success: function(data) {
-                return {
-                    lat: data.results[0].geometry.location.lat,
-                    lng: data.results[0].geometry.location.lat
-                };
-            }
-        });
-    }
+    // function getLatLng(address) {
+    //     return $.ajax({
+    //         url: 'https://maps.googleapis.com/maps/api/geocode/json',
+    //         data: {
+    //             'address': address
+    //         },
+    //         dataType: 'json',
+    //         success: function(data) {
+    //             return {
+    //                 lat: data.results[0].geometry.location.lat,
+    //                 lng: data.results[0].geometry.location.lat
+    //             };
+    //         }
+    //     });
+    // }
 
     function getRoutes(s, e) {
         var start = s.lat + ',' + s.lng;
